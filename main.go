@@ -3,8 +3,13 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"offersapp/models"
-	"offersapp/routes"
+
+	// "voiceassistant/amodels"
+	// "voiceassistant/aroutes"
+
+	"voiceassistant/models"
+	"voiceassistant/routes"
+
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -33,15 +38,17 @@ func main() {
 	{
 		itemsGroup.GET("index", routes.ItemsIndex)
 		itemsGroup.POST("create", authMiddleWare(), routes.ItemsCreate)
-		itemsGroup.GET("sold_by_user", authMiddleWare(), routes.ItemsForSaleByCurrentUser)
 		itemsGroup.PUT("update", authMiddleWare(), routes.ItemsUpdate)
+		itemsGroup.POST("speech", routes.SpeechToText)
+		itemsGroup.POST("emotion", routes.Emotion)
 	}
-
+	gin.SetMode(gin.ReleaseMode)
 	router.Run(":3000")
+
 }
 
 func connectDB() (c *pgx.Conn, err error) {
-	conn, err := pgx.Connect(context.Background(), "postgresql://postgres:@localhost:5432/offersapp")
+	conn, err := pgx.Connect(context.Background(), "postgresql://postgres:root@localhost:5432/db2")
 	if err != nil || conn == nil {
 		fmt.Println("Error connecting to DB")
 		fmt.Println(err.Error())
@@ -67,7 +74,7 @@ func authMiddleWare() gin.HandlerFunc {
 			return
 		}
 		token := split[1]
-		//fmt.Printf("Bearer (%v) \n", token)
+		fmt.Printf("Bearer (%v) \n", token)
 		isValid, userID := models.IsTokenValid(token)
 		if isValid == false {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated."})

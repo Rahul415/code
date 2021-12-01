@@ -3,7 +3,7 @@ package routes
 import (
 	"fmt"
 	"net/http"
-	"offersapp/models"
+	"voiceassistant/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v4"

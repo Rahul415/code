@@ -21,10 +21,15 @@ type User struct {
 	ID              uuid.UUID `json:"id"`
 	CreatedAt       time.Time `json:"_"`
 	UpdatedAt       time.Time `json:"_"`
+	FullName		string	  `json:"fullname"`
 	Email           string    `json:"email"`
 	PasswordHash    string    `json:"-"`
 	Password        string    `json:"password"`
 	PasswordConfirm string    `json:"password_confirm"`
+	PhoneNo 		uint64	  `json:"phoneno"`
+    StoreName		string	  `json:"storename"`
+    StoreAddress	string	  `json:"storeaddress"`
+    PinCode			int64    `json:"pincode"`
 }
 
 func (u *User) Register(conn *pgx.Conn) error {
@@ -39,6 +44,14 @@ func (u *User) Register(conn *pgx.Conn) error {
 	if len(u.Email) < 4 {
 		return fmt.Errorf("Email must be at least 4 characters long.")
 	}
+
+	// if len(u.PhoneNo) < 10  {
+	// 	return fmt.Errorf("phone no must be at least 10 numbers long.")
+	// }	
+
+	// if len(u.PinCode) < 6 {
+	// 	return fmt.Errorf("pin no must be at least 6 numbers long.")
+	// }	
 
 	u.Email = strings.ToLower(u.Email)
 	row := conn.QueryRow(context.Background(), "SELECT id from user_account WHERE email = $1", u.Email)
@@ -57,7 +70,7 @@ func (u *User) Register(conn *pgx.Conn) error {
 	u.PasswordHash = string(pwdHash)
 
 	now := time.Now()
-	_, err = conn.Exec(context.Background(), "INSERT INTO user_account (created_at, updated_at, email, password_hash) VALUES($1, $2, $3, $4)", now, now, u.Email, u.PasswordHash)
+	_, err = conn.Exec(context.Background(), "INSERT INTO user_account (created_at, updated_at, fullname, email, password_hash, phoneno, storename, storeaddress, pincode) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)", now, now, u.FullName, u.Email, u.PasswordHash, u.PhoneNo, u.StoreName, u.StoreAddress, u.PinCode)
 
 	return err
 }
